@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eye Gallery — Customer Power Database</title>
+  <style>
+    :root {
+      --bg-app: #e2e8f0;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --border-soft: #cbd5e1;
+      --border-strong: #1f2937;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --accent: #0f172a;
+      --accent-hover: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-width: 1120px;
+      margin: 16px auto;
+      padding: 0 14px 28px;
+      color: var(--text-main);
+      background: var(--bg-app);
+    }
+
+    /* Software Window Frame */
+    .app-window {
+      background: #f8fafc;
+      border: 1px solid #94a3b8;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+
+    .app-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-btn {
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 4px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #f8fafc;
+      cursor: pointer;
+    }
+
+    .toolbar-btn:hover {
+      background: #334155;
+    }
+
+    /* Eye Gallery Header & Logo */
+    .shop-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-soft);
+      padding: 14px 18px;
+    }
+    .shop-logo {
+      width: 58px;
+      height: 58px;
+      flex-shrink: 0;
+    }
+    .shop-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .shop-address {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Split Software Workspace */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 16px;
+      padding: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .panel-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      flex-wrap: wrap;
+    }
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .present-date-badge {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-soft);
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    input {
+      padding: 9px 10px;
+      flex: 1;
+      min-width: 120px;
+      border: 1px solid var(--border-soft);
+      border-radius: 5px;
+      background: var(--bg-surface);
+      font-size: 14px;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.12);
+    }
+    button {
+      padding: 8px 14px;
+      cursor: pointer;
+      border: 1px solid #94a3b8;
+      border-radius: 5px;
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #e2e8f0;
+    }
+    button[type="submit"],
+    #searchBtn {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+    button[type="submit"]:hover,
+    #searchBtn:hover {
+      background: var(--accent-hover);
+    }
+    .search-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .search-box input {
+      flex: 1;
+    }
+
+    /* Power Table Style */
+    .table-wrap {
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+    table.power-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      background: var(--bg-surface);
+    }
+    table.power-table th,
+    table.power-table td {
+      border: 1px solid var(--border-strong);
+      padding: 6px;
+    }
+    table.power-table th {
+      background: var(--bg-subtle);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    table.power-table td.eye-label {
+      font-weight: 700;
+      background: #f8fafc;
+      width: 66px;
+    }
+    table.power-table td input {
+      width: 100%;
+      min-width: 64px;
+      text-align: center;
+      padding: 6px;
+      border: 1px solid var(--border-soft);
+      border-radius: 4px;
+    }
+
+    .card {
+      border: 1px solid var(--border-soft);
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 6px;
+      background: #fcfcfd;
+    }
+    .card-header {
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+    .card-meta {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #334155;
+    }
+    .purchase-history-box {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 13px;
+      color: #334155;
+    }
+    .purchase-history-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+    .purchase-history-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .purchase-history-list li {
+      margin-bottom: 4px;
+    }
+    .card-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+    }
+    .cancel-btn {
+      background: #f3f4f6;
+    }
+    .delete-btn {
+      color: #b91c1c;
+    }
+    .empty-hint {
+      color: #64748b;
+      font-size: 14px;
+      margin: 8px 0 0;
+    }
+    .status-msg {
+      font-size: 12px;
+      color: #38bdf8;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-window">
+    <!-- Top Software Status & Utility Bar -->
+    <div class="app-toolbar">
+      <div>
+        <span>Eye Gallery POS / Rx Software</span>
+        <span id="statusIndicator" class="status-msg"> &bull; Ready (F2: Search, Ctrl+S: Save)</span>
+      </div>
+      <div class="toolbar-actions">
+        <button type="button" id="exportBtn" class="toolbar-btn">Export Backup</button>
+        <button type="button" id="importBtn" class="toolbar-btn">Import Backup</button>
+        <input type="file" id="importFileInput" accept=".json,application/json" style="display: none;" />
+      </div>
+    </div>
+
+    <!-- Shop Header, Logo & Address -->
+    <header class="shop-header">
+      <svg class="shop-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Eye Gallery Logo">
+        <rect width="64" height="64" rx="14" fill="#0f172a"/>
+        <circle cx="21" cy="34" r="9" stroke="#38bdf8" stroke-width="3"/>
+        <circle cx="43" cy="34" r="9" stroke="#38bdf8" stroke-width="3"/>
+        <path d="M30 34C30.8 31.8 33.2 31.8 34 34" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M12 33L9 29M52 33L55 29" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1 class="shop-title">Eye Gallery</h1>
+        <p class="shop-address">91, West Kafrul, Taltola, Agargaon, Dhaka | Phone: 01634667122</p>
+      </div>
+    </header>
+
+    <main class="workspace-grid">
+      <!-- Left Pane: Power Entry Form -->
+      <section class="panel">
+        <div class="panel-header-row">
+          <h3>New Power Entry / Update</h3>
+          <span id="currentDateBadge" class="present-date-badge"></span>
+        </div>
+        <form id="rxForm">
+          <div class="row">
+            <input type="text" id="name" placeholder="Customer Name" required />
+            <input type="text" id="phone" placeholder="Mobile Number" required />
+          </div>
+
+          <div class="table-wrap">
+            <table class="power-table" aria-label="Eye Power Input Table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>SPH</th>
+                  <th>CYL</th>
+                  <th>AXIS</th>
+                  <th>ADD</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="eye-label">OD</td>
+                  <td><input type="text" id="odSph" data-row="0" data-col="0" placeholder="-" /></td>
+                  <td><input type="text" id="odCyl" data-row="0" data-col="1" placeholder="-" /></td>
+                  <td><input type="text" id="odAxis" data-row="0" data-col="2" placeholder="*" /></td>
+                  <td><input type="text" id="odAdd" data-row="0" data-col="3" placeholder="ADD" /></td>
+                </tr>
+                <tr>
+                  <td class="eye-label">OS</td>
+                  <td><input type="text" id="osSph" data-row="1" data-col="0" placeholder="-" /></td>
+                  <td><input type="text" id="osCyl" data-row="1" data-col="1" placeholder="-" /></td>
+                  <td><input type="text" id="osAxis" data-row="1" data-col="2" placeholder="*" /></td>
+                  <td><input type="text" id="osAdd" data-row="1" data-col="3" placeholder="ADD" /></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row">
+            <input type="text" id="pd" placeholder="Frame Details" />
+            <input type="text" id="note" placeholder="Lens Details" />
+          </div>
+
+          <div class="row">
+            <input type="text" id="price" placeholder="Price" />
+          </div>
+
+          <div class="row">
+            <button type="submit" id="submitBtn">Save</button>
+            <button type="button" id="cancelEditBtn" class="cancel-btn" style="display: none;">Cancel</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right Pane: Search Section (Shows no results until searched) -->
+      <section class="panel">
+        <div class="panel-header-row">
+          <h3>Customer Power Search</h3>
+        </div>
+        <div class="search-box">
+          <input type="text" id="searchPhone" placeholder="Search by mobile number..." />
+          <button type="button" id="searchBtn">Search</button>
+          <button type="button" id="clearBtn">Clear</button>
+        </div>
+
+        <div id="results"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "eye_gallery_rx_records";
+    const form = document.getElementById("rxForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const cancelEditBtn = document.getElementById("cancelEditBtn");
+    const searchInput = document.getElementById("searchPhone");
+    const searchBtn = document.getElementById("searchBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const resultsDiv = document.getElementById("results");
+    const currentDateBadge = document.getElementById("currentDateBadge");
+    const statusIndicator = document.getElementById("statusIndicator");
+    const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
+    const importFileInput = document.getElementById("importFileInput");
+
+    function setStatus(text) {
+      statusIndicator.textContent = ` • ${text}`;
+    }
+
+    function getPresentDateFormatted() {
+      return new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    currentDateBadge.textContent = `Date: ${getPresentDateFormatted()}`;
+
+    let editingId = null;
+    let hasSearched = false;
+
+    // Excel-like Arrow Key Navigation across inputs
+    const allInputs = Array.from(form.querySelectorAll("input[type='text']"));
+    const gridInputs = Array.from(form.querySelectorAll("table.power-table input[type='text']"));
+
+    function focusInput(el) {
+      if (!el) return;
+      el.focus();
+      if (typeof el.select === "function") {
+        el.select();
+      }
+    }
+
+    form.addEventListener("keydown", (e) => {
+      const target = e.target;
+      if (!target || target.tagName !== "INPUT") return;
+
+      const isGridCell = target.hasAttribute("data-row") && target.hasAttribute("data-col");
+
+      if (isGridCell) {
+        const row = Number(target.dataset.row);
+        const col = Number(target.dataset.col);
+
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          const nextCell = gridInputs.find(
+            el => Number(el.dataset.row) === row && Number(el.dataset.col) === col + 1
+          );
+          if (nextCell) {
+            focusInput(nextCell);
+          } else if (row === 0) {
+            const firstOfSecondRow = gridInputs.find(
+              el => Number(el.dataset.row) === 1 && Number(el.dataset.col) === 0
+            );
+            focusInput(firstOfSecondRow);
+          } else {
+            focusInput(document.getElementById("pd"));
+          }
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          const prevCell = gridInputs.find(
+            el => Number(el.dataset.row) === row && Number(el.dataset.col) === col - 1
+          );
+          if (prevCell) {
+            focusInput(prevCell);
+          } else if (row === 1) {
+            const lastOfFirstRow = gridInputs.find(
+              el => Number(el.dataset.row) === 0 && Number(el.dataset.col) === 3
+            );
+            focusInput(lastOfFirstRow);
+          } else {
+            focusInput(document.getElementById("phone"));
+          }
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          if (row === 0) {
+            const belowCell = gridInputs.find(
+              el => Number(el.dataset.row) === 1 && Number(el.dataset.col) === col
+            );
+            focusInput(belowCell);
+          } else {
+            focusInput(document.getElementById("pd"));
+          }
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          if (row === 1) {
+            const aboveCell = gridInputs.find(
+              el => Number(el.dataset.row) === 0 && Number(el.dataset.col) === col
+            );
+            focusInput(aboveCell);
+          } else {
+            focusInput(document.getElementById("name"));
+          }
+        }
+        return;
+      }
+
+      const idx = allInputs.indexOf(target);
+      if (e.key === "ArrowRight" && idx !== -1 && idx < allInputs.length - 1) {
+        e.preventDefault();
+        focusInput(allInputs[idx + 1]);
+      } else if (e.key === "ArrowLeft" && idx > 0) {
+        e.preventDefault();
+        focusInput(allInputs[idx - 1]);
+      }
+    });
+
+    // Software Keyboard Shortcuts: F2 -> Search, Ctrl/Cmd+S -> Save
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "F2") {
+        e.preventDefault();
+        focusInput(searchInput);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    function buildPurchaseEntry(data) {
+      return {
+        entryId: Date.now() + Math.floor(Math.random() * 1000),
+        date: getPresentDateFormatted(),
+        pd: data.pd,
+        note: data.note,
+        price: data.price,
+      };
+    }
+
+    function getRecords() {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      return raw.map((item, idx) => {
+        const record = {
+          id: item.id || (Date.now() + idx),
+          ...item
+        };
+        if (!Array.isArray(record.history) || record.history.length === 0) {
+          record.history = [{
+            entryId: record.id,
+            date: record.date || getPresentDateFormatted(),
+            pd: record.pd || "",
+            note: record.note || "",
+            price: record.price || "",
+          }];
+        }
+        return record;
+      });
+    }
+
+    function saveRecords(records) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function resetFormMode() {
+      editingId = null;
+      form.reset();
+      currentDateBadge.textContent = `Date: ${getPresentDateFormatted()}`;
+      submitBtn.textContent = "Save";
+      cancelEditBtn.style.display = "none";
+    }
+
+    function renderPurchaseHistoryHtml(historyList) {
+      if (!Array.isArray(historyList) || historyList.length === 0) {
+        return `<div class="purchase-history-box"><div class="purchase-history-title">Purchase History</div><div>No purchase history yet.</div></div>`;
+      }
+
+      const itemsHtml = historyList.map(h => `
+        <li>
+          <strong>${h.date || "-"}</strong> —
+          Frame: <strong>${h.pd || "-"}</strong> |
+          Lens: <strong>${h.note || "-"}</strong> |
+          Price: <strong>${h.price || "-"}</strong>
+        </li>
+      `).join("");
+
+      return `
+        <div class="purchase-history-box">
+          <div class="purchase-history-title">Purchase History (${historyList.length})</div>
+          <ul class="purchase-history-list">${itemsHtml}</ul>
+        </div>
+      `;
+    }
+
+    function renderRecords() {
+      const query = searchInput.value.trim().toLowerCase();
+      if (!hasSearched || !query) {
+        resultsDiv.innerHTML = `<p class="empty-hint"></p>`;
+        return;
+      }
+
+      const records = getRecords().filter(r =>
+        (r.phone || "").toLowerCase().includes(query)
+      );
+
+      resultsDiv.innerHTML = records.map(r => `
+        <div class="card" data-id="${r.id}">
+          <div class="card-header">
+            <strong>${r.name}</strong> — ${r.phone}
+          </div>
+
+          <div class="table-wrap">
+            <table class="power-table" aria-label="Saved Power Table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>SPH</th>
+                  <th>CYL</th>
+                  <th>AXIS</th>
+                  <th>ADD</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="eye-label">OD</td>
+                  <td>${r.odSph || "-"}</td>
+                  <td>${r.odCyl || "-"}</td>
+                  <td>${r.odAxis || "-"}</td>
+                  <td>${r.odAdd || "-"}</td>
+                </tr>
+                <tr>
+                  <td class="eye-label">OS</td>
+                  <td>${r.osSph || "-"}</td>
+                  <td>${r.osCyl || "-"}</td>
+                  <td>${r.osAxis || "-"}</td>
+                  <td>${r.osAdd || "-"}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card-meta">
+            <strong>Frame:</strong> ${r.pd || "-"} &nbsp;|&nbsp; <strong>Lens:</strong> ${r.note || "-"} &nbsp;|&nbsp; <strong>Price:</strong> ${r.price || "-"}
+          </div>
+
+          ${renderPurchaseHistoryHtml(r.history)}
+
+          <div class="card-actions">
+            <button type="button" class="edit-btn" data-id="${r.id}">Edit</button>
+            <button type="button" class="delete-btn" data-id="${r.id}">Delete</button>
+          </div>
+        </div>
+      `).join("") || "<p class='empty-hint'>No records found for this number.</p>";
+    }
+
+    resultsDiv.addEventListener("click", (e) => {
+      const target = e.target;
+      const id = Number(target.dataset.id);
+      if (!id) return;
+
+      if (target.classList.contains("edit-btn")) {
+        const records = getRecords();
+        const found = records.find(r => r.id === id);
+        if (!found) return;
+
+        editingId = found.id;
+        document.getElementById("name").value = found.name || "";
+        document.getElementById("phone").value = found.phone || "";
+        document.getElementById("odSph").value = found.odSph || "";
+        document.getElementById("odCyl").value = found.odCyl || "";
+        document.getElementById("odAxis").value = found.odAxis || "";
+        document.getElementById("odAdd").value = found.odAdd || "";
+        document.getElementById("osSph").value = found.osSph || "";
+        document.getElementById("osCyl").value = found.osCyl || "";
+        document.getElementById("osAxis").value = found.osAxis || "";
+        document.getElementById("osAdd").value = found.osAdd || "";
+        document.getElementById("pd").value = found.pd || "";
+        document.getElementById("note").value = found.note || "";
+        document.getElementById("price").value = found.price || "";
+
+        currentDateBadge.textContent = `Date: ${getPresentDateFormatted()}`;
+        submitBtn.textContent = "Update";
+        cancelEditBtn.style.display = "inline-block";
+        setStatus(`Editing ${found.name}`);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      if (target.classList.contains("delete-btn")) {
+        const updated = getRecords().filter(r => r.id !== id);
+        saveRecords(updated);
+        if (editingId === id) resetFormMode();
+        renderRecords();
+        setStatus("Record deleted");
+      }
+    });
+
+    cancelEditBtn.addEventListener("click", () => {
+      resetFormMode();
+      setStatus("Edit cancelled");
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = {
+        name: document.getElementById("name").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        odSph: document.getElementById("odSph").value.trim(),
+        odCyl: document.getElementById("odCyl").value.trim(),
+        odAxis: document.getElementById("odAxis").value.trim(),
+        odAdd: document.getElementById("odAdd").value.trim(),
+        osSph: document.getElementById("osSph").value.trim(),
+        osCyl: document.getElementById("osCyl").value.trim(),
+        osAxis: document.getElementById("osAxis").value.trim(),
+        osAdd: document.getElementById("osAdd").value.trim(),
+        pd: document.getElementById("pd").value.trim(),
+        note: document.getElementById("note").value.trim(),
+        price: document.getElementById("price").value.trim(),
+      };
+
+      const records = getRecords();
+      const newHistoryEntry = buildPurchaseEntry(formData);
+
+      if (editingId !== null) {
+        const updatedRecords = records.map(r => {
+          if (r.id !== editingId) return r;
+          const updatedHistory = Array.isArray(r.history) ? [...r.history] : [];
+          if (updatedHistory.length > 0) {
+            updatedHistory[0] = {
+              ...updatedHistory[0],
+              ...newHistoryEntry,
+              entryId: updatedHistory[0].entryId
+            };
+          } else {
+            updatedHistory.unshift(newHistoryEntry);
+          }
+          return {
+            ...r,
+            ...formData,
+            history: updatedHistory
+          };
+        });
+        saveRecords(updatedRecords);
+        resetFormMode();
+        setStatus("Record updated");
+      } else {
+        const existingByPhoneIndex = records.findIndex(
+          r => (r.phone || "").trim().toLowerCase() === formData.phone.toLowerCase()
+        );
+
+        if (existingByPhoneIndex !== -1) {
+          const existing = records[existingByPhoneIndex];
+          const updatedHistory = [newHistoryEntry, ...(existing.history || [])];
+          records[existingByPhoneIndex] = {
+            ...existing,
+            ...formData,
+            history: updatedHistory
+          };
+        } else {
+          records.unshift({
+            id: Date.now(),
+            ...formData,
+            history: [newHistoryEntry]
+          });
+        }
+
+        saveRecords(records);
+        form.reset();
+        currentDateBadge.textContent = `Date: ${getPresentDateFormatted()}`;
+        setStatus("Saved to database");
+      }
+
+      renderRecords();
+    });
+
+    function triggerSearch() {
+      hasSearched = true;
+      renderRecords();
+      setStatus("Search completed");
+    }
+
+    searchBtn.addEventListener("click", triggerSearch);
+
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        triggerSearch();
+      }
+    });
+
+    searchInput.addEventListener("input", () => {
+      if (!searchInput.value.trim()) {
+        hasSearched = false;
+        renderRecords();
+      }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      hasSearched = false;
+      renderRecords();
+      setStatus("Cleared search");
+    });
+
+    // Backup Export & Import for software reliability
+    exportBtn.addEventListener("click", () => {
+      const dataStr = JSON.stringify(getRecords(), null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `eye-gallery-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus("Backup exported");
+    });
+
+    importBtn.addEventListener("click", () => {
+      importFileInput.click();
+    });
+
+    importFileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          if (!Array.isArray(parsed)) return;
+          saveRecords(parsed);
+          renderRecords();
+          setStatus("Backup restored");
+        } catch (err) {
+          setStatus("Invalid backup file");
+        }
+      };
+      reader.readAsText(file);
+      importFileInput.value = "";
+    });
+
+    renderRecords();
+  </script>
+</body>
+</html>
